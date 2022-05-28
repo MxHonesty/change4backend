@@ -33,7 +33,7 @@ func SetupCloseHandler(dbConn *db.Mongodb) {
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-c
-		logging.InfoLogger.Println("\r- Ctrl+C pressed in Terminal")
+		logging.InfoLogger.Println("Ctrl+C pressed in Terminal")
 		CleanUp(dbConn)
 		os.Exit(0)
 	}()
