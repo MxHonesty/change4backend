@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/MxHonesty/change4backend/auth"
+	"github.com/MxHonesty/change4backend/authentication"
 	"github.com/MxHonesty/change4backend/geo"
 	"github.com/MxHonesty/change4backend/logging"
 	"go.mongodb.org/mongo-driver/bson"
@@ -65,7 +65,7 @@ func (m *Mongodb) FindAllCentre() []geo.Centru {
 	return centre
 }
 
-func (m *Mongodb) FindAllUsers() []auth.User {
+func (m *Mongodb) FindAllUsers() []authentication.User {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -74,18 +74,18 @@ func (m *Mongodb) FindAllUsers() []auth.User {
 		logging.ErrorLogger.Fatal(currErr)
 	}
 
-	var users []auth.User
+	var users []authentication.User
 	if err := curr.All(ctx, &users); err != nil {
 		panic(err)
 	}
 	return users
 }
 
-func (m *Mongodb) FindOneUser(username, password string) (auth.User, error) {
+func (m *Mongodb) FindOneUser(username, password string) (authentication.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	var foundUser auth.User
+	var foundUser authentication.User
 	res := m.Users.FindOne(ctx, bson.D{{Key: "userName", Value: username}, {Key: "password", Value: password}})
 	err := res.Decode(&foundUser)
 	return foundUser, err
@@ -95,7 +95,7 @@ func (m *Mongodb) AddUser(username, password string, userType uint8) (string, er
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	passHash, _ := auth.HashPassword(password)
+	passHash, _ := authentication.HashPassword(password)
 	add := bson.D{
 		{Key: "userName", Value: username},
 		{Key: "password", Value: passHash},

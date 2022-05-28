@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/MxHonesty/change4backend/authentication"
 	"github.com/MxHonesty/change4backend/db"
 	"github.com/MxHonesty/change4backend/logging"
 	"github.com/MxHonesty/change4backend/server"
@@ -19,7 +20,9 @@ func main() {
 	SetupCloseHandler(dbConn)
 	defer dbConn.CloseConnection()
 
+	authentication.SetupGoGuardian()
 	http.Handle("/centre", &server.CentreHandler{Repo: dbConn})
+	http.HandleFunc("/token", authentication.Middleware(http.HandlerFunc(authentication.CreateToken)))
 	logging.InfoLogger.Println("Server listening on port 8080")
 	http.ListenAndServe(":8080", nil)
 }
