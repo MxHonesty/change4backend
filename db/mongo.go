@@ -40,10 +40,10 @@ func NewMongodb() *Mongodb {
 }
 
 func (m *Mongodb) CloseConnection() {
+	logging.InfoLogger.Println("Closing Mongo Connection")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	logging.InfoLogger.Println("Closing Mongo Connection")
 	if err := m.client.Disconnect(ctx); err != nil {
 		logging.ErrorLogger.Fatal(err)
 	}
