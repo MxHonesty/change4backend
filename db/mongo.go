@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/MxHonesty/change4backend/auth"
+	"github.com/MxHonesty/change4backend/geo"
 	"github.com/MxHonesty/change4backend/logging"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,6 +16,7 @@ import (
 type Mongodb struct {
 	client *mongo.Client
 	Users  *mongo.Collection
+	Centre *mongo.Collection
 }
 
 func NewMongodb() *Mongodb {
@@ -32,7 +34,8 @@ func NewMongodb() *Mongodb {
 	}
 
 	return &Mongodb{client: client,
-		Users: client.Database("Change").Collection("User"),
+		Users:  client.Database("Change").Collection("User"),
+		Centre: client.Database("Change").Collection("Centre"),
 	}
 }
 
@@ -44,6 +47,22 @@ func (m *Mongodb) CloseConnection() {
 	if err := m.client.Disconnect(ctx); err != nil {
 		logging.ErrorLogger.Fatal(err)
 	}
+}
+
+func (m *Mongodb) FindAllCentre() []geo.Centru {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	curr, currErr := m.Centre.Find(ctx, bson.D{})
+	if currErr != nil {
+		logging.ErrorLogger.Fatal(currErr)
+	}
+
+	var centre []geo.Centru
+	if err := curr.All(ctx, &centre); err != nil {
+		logging.ErrorLogger.Fatal(err)
+	}
+	return centre
 }
 
 func (m *Mongodb) FindAllUsers() []auth.User {

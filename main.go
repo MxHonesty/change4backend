@@ -1,8 +1,11 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/MxHonesty/change4backend/db"
 	"github.com/MxHonesty/change4backend/logging"
+	"github.com/MxHonesty/change4backend/server"
 )
 
 func main() {
@@ -11,6 +14,8 @@ func main() {
 
 	dbConn := db.NewMongodb()
 	defer dbConn.CloseConnection()
-	// id, _ := dbConn.AddUser("root", "root", 1)
-	// logging.InfoLogger.Println(id)
+
+	http.Handle("/centre", &server.CentreHandler{Repo: dbConn})
+	logging.InfoLogger.Println("Server listening on port 8080")
+	http.ListenAndServe(":8080", nil)
 }
